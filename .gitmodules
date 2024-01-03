@@ -1,0 +1,4 @@
+[submodule "module-signer"]
+	path = module-signer
+	url = https://github.com/inductiveautomation/module-signer.git
+	ignore = all

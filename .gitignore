@@ -38,6 +38,3 @@ local.properties
 .gradletasknamecache
 .gradle/
 build/
-
-# Module Signer
-module-signer/
