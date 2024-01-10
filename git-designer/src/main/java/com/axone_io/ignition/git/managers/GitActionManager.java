@@ -73,19 +73,12 @@ public class GitActionManager {
 
     public static void showCommitPopup(String projectName, String userName) {
         Object[][] data = GitActionManager.getCommitPopupData(projectName, userName);
-        if (commitPopup != null) {
-            commitPopup.setData(data);
-            commitPopup.setVisible(true);
-            commitPopup.toFront();
-        } else {
-            commitPopup = new CommitPopup(data, context.getFrame()) {
-                @Override
-                public void onActionPerformed(List<String> changes, String commitMessage) {
-                    handleCommitAction(changes, commitMessage);
-                    resetMessage();
-                }
-            };
+        List<String> resourcesChangedId = new ArrayList<>();
+        for (int i = 0; i < data.length; i++) {
+            resourcesChangedId.add(data[i][1].toString());
         }
+        String commitMessage = "Commit by user: " + userName;
+        handleCommitAction(resourcesChangedId, commitMessage);
     }
     public static void openRepositoryLink() {
         try {
