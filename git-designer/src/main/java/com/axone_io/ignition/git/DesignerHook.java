@@ -57,7 +57,7 @@ public class DesignerHook extends AbstractDesignerModuleHook {
 
         rpc.setupLocalRepo(projectName, userName);
 
-        initStatusBar();
+        // initStatusBar();
         initToolBar();
 
     }
@@ -92,11 +92,7 @@ public class DesignerHook extends AbstractDesignerModuleHook {
     private void initToolBar() {
         DockableBarManager toolBarManager = context.getToolbarManager();
         DesignerToolbar toolbar = new DesignerToolbar("Git", "DesignerHook.Toolbar.Name");
-        toolbar.add(new GitBaseAction(GitBaseAction.GitActionType.PUSH));
-        toolbar.add(new GitBaseAction(GitBaseAction.GitActionType.PULL));
         toolbar.add(new GitBaseAction(GitBaseAction.GitActionType.COMMIT));
-        toolbar.add(new GitBaseAction(GitBaseAction.GitActionType.EXPORT));
-        toolbar.add(new GitBaseAction(GitBaseAction.GitActionType.REPO));
 
         toolBarManager.addDockableBar(toolbar);
     }
