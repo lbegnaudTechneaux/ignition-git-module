@@ -64,11 +64,12 @@ jobs:
           if-no-files-found: error
       - name: Get Version
         id: get-version
-        #if: ${{ !github.event.pull_request }}
         run: |
           echo "GIT_MODULE_VERSION=$(grep '<version>' pom.xml | grep -oP -m 1 '(?<=>)(.*)(?=<)')" >> $GITHUB_OUTPUT
+      - name: Print Extracted Version
+        run: echo ${{ steps.get-version.outputs.GIT_MODULE_VERSION }}
       - name: Create release
-        #if: ${{ !github.event.pull_request }}
+        if: ${{ !github.event.pull_request }}
         uses: marvinpinto/action-automatic-releases@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
