@@ -1,10 +1,16 @@
 name: Build PRs
-on: pull_request
+on: 
+  pull_request:
+  push:
+    branches:
+      - main-new
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: 'true'
       - uses: actions/setup-java@v4
         with:
           java-version: '11'
@@ -34,3 +40,38 @@ jobs:
           name: ignition-extensions-unsigned
           path: git-build/target/Git-unsigned.modl
           if-no-files-found: error
+      - name: Build module signer
+        run: mvn verify -f module-signer/pom.xml
+      - name: Deserialize signing certs
+        run: |
+          echo ${{ secrets.CERT_BASE64 }} | base64 --decode > cert.p7b
+          echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > keystore.pfx
+      - name: Sign module
+        run: >
+          java -jar module-signer/target/module-signer-1.0.0-SNAPSHOT-jar-with-dependencies.jar
+          -chain=cert.p7b
+          -alias-pwd="${{ secrets.CERT_PASSWORD }}"
+          -keystore=keystore.pfx
+          -keystore-pwd="${{ secrets.KEYSTORE_PASSWORD }}"
+          -alias=techneaux-git-module
+          -module-in=git-build/target/Git-unsigned.modl
+          -module-out=git-build/target/Git-signed.modl
+      - name: Upload Signed Module
+        uses: actions/upload-artifact@v3
+        with:
+          name: ignition-extensions-unsigned
+          path: git-build/target/Git-signed.modl
+          if-no-files-found: error
+      - name: Get Version
+        id: get-version
+        #if: ${{ !github.event.pull_request }}
+        run: |
+          echo "GIT_MODULE_VERSION=$(grep '<version>' pom.xml | grep -oP -m 1 '(?<=>)(.*)(?=<)')" >> $GITHUB_OUTPUT
+      - name: Create release
+        #if: ${{ !github.event.pull_request }}
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          automatic_release_tag: ${{ steps.get-version.outputs.GIT_MODULE_VERSION }}
+          prerelease: false
+          files: git-build/target/Git-signed.modl
