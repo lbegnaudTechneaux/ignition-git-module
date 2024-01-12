@@ -73,6 +73,10 @@ public class GitActionManager {
 
     public static void showCommitPopup(String projectName, String userName) {
         Object[][] data = GitActionManager.getCommitPopupData(projectName, userName);
+        if (data.length == 0) {
+            return;
+        }
+
         List<String> resourcesChangedId = new ArrayList<>();
         for (int i = 0; i < data.length; i++) {
             resourcesChangedId.add(data[i][1].toString());

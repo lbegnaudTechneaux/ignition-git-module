@@ -21,11 +21,15 @@ jobs:
         run: |
           echo "date=$(/bin/date -u "+%Y%m")" >> $GITHUB_OUTPUT
         shell: bash
+      - name: Get Version
+        id: get-version
+        run: |
+          echo "GIT_MODULE_VERSION=$(grep '<version>' pom.xml | grep -oP -m 1 '(?<=>)(.*)(?=<)')" >> $GITHUB_OUTPUT
       - name: Cache Maven Dependencies
         id: maven-deps-cache
         uses: actions/cache@v3
         with:
-          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-maven-deps
+          key: ${{ runner.os }}-${{ steps.get-date.outputs.date }}-${{ steps.get-version.outputs.GIT_MODULE_VERSION }}-maven-deps
           path: |
             git-common/pom.xml
       - name: Maven Dependencies
@@ -62,10 +66,6 @@ jobs:
           name: ignition-extensions-unsigned
           path: git-build/target/Git-signed.modl
           if-no-files-found: error
-      - name: Get Version
-        id: get-version
-        run: |
-          echo "GIT_MODULE_VERSION=$(grep '<version>' pom.xml | grep -oP -m 1 '(?<=>)(.*)(?=<)')" >> $GITHUB_OUTPUT
       - name: Print Extracted Version
         run: echo ${{ steps.get-version.outputs.GIT_MODULE_VERSION }}
       - name: Create release
